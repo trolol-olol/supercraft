@@ -8,6 +8,6 @@
 Model buildWorldMesh(World *world);
 void updateWorldMesh(Model *model, World *world);
 void destroyWorldModel(Model *model);
-void renderEntityModel(Vec3d offset, const EntityModel* model);
+void renderEntity(const Entity* entity);
 
 #endif

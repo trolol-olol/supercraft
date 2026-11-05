@@ -253,10 +253,11 @@ static void fillVertsFromModelRect(const ModelRect* rect, Vector3 verts[6][4]) {
     #undef SET_VERT
 }
 
-void renderEntityModel(Vec3d offset, const EntityModel *model) {
+void renderEntity(const Entity *entity) {
+    EntityModel model=Registries::MODELS.getObject(entity->edef.model);
     Mesh mesh={0};
     Model draw_model;
-    const int rect_amount=model->rects.size();
+    const int rect_amount=model.rects.size();
     const int max_faces=rect_amount*6;
     mesh.triangleCount=max_faces*2;
     mesh.vertexCount=max_faces*6;
@@ -266,16 +267,16 @@ void renderEntityModel(Vec3d offset, const EntityModel *model) {
 
     int vert_count=0;
     for (int i=0;i<rect_amount;i++) {
-        ModelRect cur_rect=model->rects[i];
+        ModelRect cur_rect=model.rects[i];
         Vector3 verts[6][4];
         fillVertsFromModelRect(&cur_rect, verts);
 
         addFace(&mesh, &vert_count, verts[0][0], verts[0][1], verts[0][2], verts[0][3], TEX_UV(0));
-        addFace(&mesh, &vert_count, verts[1][0], verts[1][1], verts[1][2], verts[1][3], TEX_UV(0));
-        addFace(&mesh, &vert_count, verts[2][0], verts[2][1], verts[2][2], verts[2][3], TEX_UV(0));
-        addFace(&mesh, &vert_count, verts[3][0], verts[3][1], verts[3][2], verts[3][3], TEX_UV(0));
-        addFace(&mesh, &vert_count, verts[4][0], verts[4][1], verts[4][2], verts[4][3], TEX_UV(0));
-        addFace(&mesh, &vert_count, verts[5][0], verts[5][1], verts[5][2], verts[5][3], TEX_UV(0));
+        addFace(&mesh, &vert_count, verts[1][0], verts[1][1], verts[1][2], verts[1][3], TEX_UV(1));
+        addFace(&mesh, &vert_count, verts[2][0], verts[2][1], verts[2][2], verts[2][3], TEX_UV(2));
+        addFace(&mesh, &vert_count, verts[3][0], verts[3][1], verts[3][2], verts[3][3], TEX_UV(3));
+        addFace(&mesh, &vert_count, verts[4][0], verts[4][1], verts[4][2], verts[4][3], TEX_UV(4));
+        addFace(&mesh, &vert_count, verts[5][0], verts[5][1], verts[5][2], verts[5][3], TEX_UV(5));
     }
 
     mesh.vertexCount = vert_count;
@@ -283,7 +284,12 @@ void renderEntityModel(Vec3d offset, const EntityModel *model) {
 
     UploadMesh(&mesh, false);
     draw_model=LoadModelFromMesh(mesh);
-    DrawModel(draw_model, {(float)offset.x, (float)offset.y, (float)offset.z}, 1.0f, WHITE);
+    if (atlasTexture.id != 0) {
+        draw_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = atlasTexture;
+    }
+
+    DrawModelEx(draw_model, {(float)entity->pos.x,(float)entity->pos.y,(float)entity->pos.z}, {0, 1, 0}, (float)entity->yaw, {1, 1, 1}, WHITE);
+    UnloadModel(draw_model);
 }
 
 void updateWorldMesh(Model *model, World *world) {

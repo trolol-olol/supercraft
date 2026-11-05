@@ -20,8 +20,7 @@ void World::createWorld(){
 
     for (int x = -HALF_X; x < HALF_X; x++){
         for (int z = -HALF_Z; z < HALF_Z; z++){
-            float height = 3.0f;
-            int h = (int)height;
+            int h = 3;
             if (h < 0) h = 0;
             if (h >= WORLD_SIZE_Y) h = WORLD_SIZE_Y - 1;
 
@@ -64,21 +63,22 @@ bool World::isAir(Vec3 pos){
     return def.isAir;
 }
 
-Entity World::addEntity(Vec3d pos, std::string& id) {
+Entity* World::addEntity(Vec3d pos, std::string& id) {
     Entity *ent=new Entity(id);
-    entities.push_back(*ent);
-    return *ent;
+    ent->pos=pos;
+    entities.push_back(ent);
+    return ent;
 }
 
-Entity World::getEntityByIndex(size_t index) {
+Entity* World::getEntityByIndex(size_t index) {
     return entities.at(index);
 }
 
-std::vector<Entity>::const_iterator World::entitiesIter() {
+std::vector<Entity*>::iterator World::entitiesIter() {
     return entities.begin();
 }
 
-std::vector<Entity>::const_iterator World::entitiesIterEnd() {
+std::vector<Entity*>::iterator World::entitiesIterEnd() {
     return entities.end();
 }
 

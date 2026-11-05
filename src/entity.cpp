@@ -19,7 +19,7 @@ Entity::Entity(std::string& id) {
     edef = Registries::ENTITIES.getObject(id);
 }
 
-void Entity::update(double dt) { }
+void Entity::update(double dt) { pos.y+=0.01; yaw+=1; }
 
 bool Entity::checkBlockCollision(World *world, Vec3d pos) {
     double halfW = width / 2.0;

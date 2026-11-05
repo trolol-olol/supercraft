@@ -37,10 +37,10 @@ void init() {
          0.0, 0.0, 0.0, false, false, 0
     });
     ENTITIES.registerObject("test", EntityDef{
-        "test", 1, 1, 1, 1.5,
+        "test", 1, 0.8, 1.5, 0.8,
         0.0, 0.0, 0.0, false, false, 1
     });
     MODELS.registerObject("unknown", EntityModel{std::vector<ModelRect>()});
-    MODELS.registerObject("test",EntityModel{std::vector<ModelRect>({{0,0,0},{1,1,1.5}})});
+    MODELS.registerObject("test",EntityModel{std::vector<ModelRect>({{-0.4,0,-0.4,0.8,1.5,0.8}})});
 }
 }
