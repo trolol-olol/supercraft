@@ -1,6 +1,6 @@
 #vibecoding makefiles day 1
 CXX = g++
-CXXFLAGS = -Wall -O2 -Iinclude
+CXXFLAGS = -Wall -O2 -Iinclude -s -O2
 LDFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 SRC_DIR = src
@@ -8,7 +8,7 @@ INCLUDE_DIR = include
 OBJ_DIR = obj
 TARGET = supercraft
 
-SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+SOURCES = $(wildcard $(SRC_DIR)/*.cpp $(SRC_DIR)/core/*.cpp)
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES))
 
 all: $(TARGET)
@@ -21,6 +21,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
+	mkdir -p $(OBJ_DIR)/core
 
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)

@@ -1,4 +1,5 @@
 #include "world.h"
+#include "core/Registries.h"
 #include <cmath>
 #include <cstdlib>
 
@@ -44,7 +45,7 @@ void World::destroyWorld() {
 }
 
 Block World::getBlock(Vec3 pos) {
-    Block empty_block = {65535, 0};
+    Block empty_block = {0, 0};
     if (!isValidPos(pos)) return empty_block;
 
     int idx = getIndex(pos);
@@ -59,8 +60,8 @@ void World::setBlock(Vec3 pos, Block block) {
 
 bool World::isAir(Vec3 pos){
     Block block = getBlock(pos);
-    BlockDef def = getBlockDef(block.type);
-    return def.is_air;
+    BlockDef def = Registries::BLOCKS.getObject(block.type);
+    return def.isAir;
 }
 
 bool World::isFaceVisible(Vec3 pos, side_t side) {

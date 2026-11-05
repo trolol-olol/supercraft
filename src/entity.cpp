@@ -2,6 +2,7 @@
 #include "entity.h"
 #include "world.h"
 #include "blocks.h"
+#include "core/Registries.h"
 
 using namespace std;
 
@@ -34,8 +35,8 @@ bool Entity::checkBlockCollision(World *world, Vec3d pos) {
             for (int bz = minZ; bz <= maxZ; bz++) {
                 Vec3 blockPos = { bx, by, bz };
                 Block block = world->getBlock(blockPos);
-                BlockDef def = getBlockDef(block.type);
-                if (!def.is_air) {
+                BlockDef def = Registries::BLOCKS.getObject(block.type);
+                if (!def.isAir) {
                     return true;
                 }
             }

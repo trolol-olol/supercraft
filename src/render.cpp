@@ -1,6 +1,7 @@
 #include "render.h"
 #include "world.h"
 #include "blocks.h"
+#include "core/Registries.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -80,8 +81,8 @@ Model buildWorldMesh(World *world) {
                 Vec3 pos = { x, y, z };
                 Block block = world->getBlock(pos);
 
-                BlockDef def = getBlockDef(block.type);
-                if (def.is_air) continue;
+                BlockDef def = Registries::BLOCKS.getObject(block.type);
+                if (def.isAir) continue;
 
                 float fx = (float)x, fy = (float)y, fz = (float)z;
 
@@ -90,7 +91,7 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx + 1.0f, fy + 1.0f, fz + 1.0f };
                     Vector3 v3 = { fx + 1.0f, fy + 1.0f, fz };
                     Vector3 v4 = { fx, fy + 1.0f, fz };
-                    addFace(&mesh, &vCount, v1, v2, v3, v4, TEX_UV(def.texture_top));
+                    addFace(&mesh, &vCount, v1, v2, v3, v4, TEX_UV(def.textures.tex_top));
                 }
 
                 if (world->isFaceVisible(pos, DOWN)) {
@@ -98,7 +99,7 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx + 1.0f, fy, fz };
                     Vector3 v3 = { fx + 1.0f, fy, fz + 1.0f };
                     Vector3 v4 = { fx, fy, fz + 1.0f };
-                    addFace(&mesh, &vCount, v1, v2, v3, v4, TEX_UV(def.texture_bottom));
+                    addFace(&mesh, &vCount, v1, v2, v3, v4, TEX_UV(def.textures.tex_bottom));
                 }
 
                 if (world->isFaceVisible(pos, LEFT)) {
@@ -106,7 +107,7 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx, fy + 1.0f, fz + 1.0f };
                     Vector3 v3 = { fx, fy + 1.0f, fz };
                     Vector3 v4 = { fx, fy, fz };
-                    addFace(&mesh, &vCount, v1, v2, v3, v4, TEX_UV(def.texture_left));
+                    addFace(&mesh, &vCount, v3, v2, v1, v4, TEX_UV(def.textures.tex_left));
                 }
 
                 if (world->isFaceVisible(pos, RIGHT)) {
@@ -114,7 +115,7 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx + 1.0f, fy + 1.0f, fz };
                     Vector3 v3 = { fx + 1.0f, fy + 1.0f, fz + 1.0f };
                     Vector3 v4 = { fx + 1.0f, fy, fz + 1.0f };
-                    addFace(&mesh, &vCount, v1, v2, v3, v4, TEX_UV(def.texture_right));
+                    addFace(&mesh, &vCount, v3, v2, v1, v4, TEX_UV(def.textures.tex_right));
                 }
 
                 if (world->isFaceVisible(pos, BACK)) {
@@ -122,7 +123,7 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx + 1.0f, fy + 1.0f, fz };
                     Vector3 v3 = { fx, fy + 1.0f, fz };
                     Vector3 v4 = { fx, fy, fz };
-                    addFace(&mesh, &vCount, v1, v2, v3, v4, TEX_UV(def.texture_back));
+                    addFace(&mesh, &vCount, v3, v2, v1, v4, TEX_UV(def.textures.tex_back));
                 }
 
                 if (world->isFaceVisible(pos, FRONT)) {
@@ -130,7 +131,7 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx + 1.0f, fy, fz + 1.0f };
                     Vector3 v3 = { fx + 1.0f, fy + 1.0f, fz + 1.0f };
                     Vector3 v4 = { fx, fy + 1.0f, fz + 1.0f };
-                    addFace(&mesh, &vCount, v1, v2, v3, v4, TEX_UV(def.texture_front));
+                    addFace(&mesh, &vCount, v3, v4, v1, v2, TEX_UV(def.textures.tex_front));
                 }
             }
         }

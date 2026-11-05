@@ -1,6 +1,7 @@
 #include "player.h"
 #include "blocks.h"
 #include "world.h"
+#include "core/Registries.h"
 #include <cmath>
 #include <cstdio>
 
@@ -14,7 +15,7 @@ void initPlayer(Player *player) {
     player->angleY = -0.3;
     player->speed = 8.0;
     player->height = 1.5;
-    player->block = 1;
+    player->block = 2;
 }
 
 void updatePlayerInput(Player *player, double deltaTime) {
@@ -50,9 +51,9 @@ void updatePlayerInput(Player *player, double deltaTime) {
     if (IsKeyDown(KEY_SPACE)) player->y += 5.0 * deltaTime;
     if (IsKeyDown(KEY_LEFT_SHIFT)) player->y -= 5.0 * deltaTime;
 
-    if (IsKeyPressed(KEY_ONE)) player->block = 1;
-    if (IsKeyPressed(KEY_TWO)) player->block = 2;
-    if (IsKeyPressed(KEY_THREE)) player->block = 3;
+    if (IsKeyPressed(KEY_ONE)) player->block = 2;
+    if (IsKeyPressed(KEY_TWO)) player->block = 3;
+    if (IsKeyPressed(KEY_THREE)) player->block = 4;
 }
 
 void updatePlayer(Player *player, float deltaTime) {
@@ -96,9 +97,9 @@ int raycast(World *world, Vector3 origin, Vector3 direction, int maxDist,
 
     for (int i = 0; i < maxDist; i++) {
         Block block = world->getBlock((Vec3){blockX, blockY, blockZ});
-        BlockDef def = getBlockDef(block.type);
+        BlockDef def = Registries::BLOCKS.getObject(block.type);
 
-        if (def.id != -1 && !def.is_air) {
+        if (def.id != "unknown" && !def.isAir) {
             *hit = (Vec3){blockX, blockY, blockZ};
             switch (side) {
                 case 0: *hitSide = (stepX < 0) ? RIGHT : LEFT; break;

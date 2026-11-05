@@ -6,16 +6,20 @@
 #include "render.h"
 #include "player.h"
 #include "blocks.h"
+#include "core/Registries.h"
 #include <stdio.h>
 #include <cmath>
 
 using namespace std;
 
-const char *SUPERCRAFT_VER = "0.1.1-PreAlpha";
+const char *SUPERCRAFT_VER = "0.1.2-PreAlpha";
 
 int main() {
+    Registries::init();
+
     const int screenWidth = 1280;
     const int screenHeight = 720;
+    SetTraceLogLevel(LOG_NONE);
     InitWindow(screenWidth, screenHeight, "Supercraft");
 
     rlDisableBackfaceCulling();
@@ -35,6 +39,8 @@ int main() {
 
     SetTargetFPS(60);
     DisableCursor();
+
+
 
     while (!WindowShouldClose()) {
         float deltaTime = GetFrameTime();
@@ -87,6 +93,12 @@ int main() {
                     updateWorldMesh(&worldModel, &world);
                 }
             }
+            if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
+                Vec3 pos = hitBlock;
+                if (!world.isAir(pos)) {
+                    player.block=world.getBlock(pos).type;
+                }
+            }
         }
 
         EndMode3D();
@@ -94,6 +106,8 @@ int main() {
         char info[100];
         sprintf(info, "Supercraft v%s", SUPERCRAFT_VER);
         DrawText(info, 10, 40, 20, BLACK);
+        sprintf(info, "Selected block: %s", Registries::BLOCKS.getObject(player.block).id.c_str());
+        DrawText(info, 10, 60, 20, BLACK);
         DrawFPS(10, 10);
 
         int cx = screenWidth / 2;
