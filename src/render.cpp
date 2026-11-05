@@ -60,6 +60,49 @@ static void addFace(Mesh *mesh, int *vCount,
     (*vCount)++;
 }
 
+static void turnTexture(Vector3 *v1, Vector3 *v2, Vector3 *v3, Vector3 *v4, int turn_type) {
+    Vector3 tmp;
+    Vector3 tmp2;
+    switch (turn_type) {
+        case 0: break;
+        case 1:
+            tmp=*v1;
+            *v1=*v2;
+            *v2=*v3;
+            *v3=*v4;
+            *v4=tmp;
+            break;
+        case 2:
+            tmp=*v1;
+            tmp2=*v2;
+            *v1=*v3;
+            *v2=*v4;
+            *v3=tmp;
+            *v4=tmp2;
+            break;
+        case 3:
+            tmp=*v4;
+            *v4=*v3;
+            *v3=*v2;
+            *v2=*v1;
+            *v1=tmp;
+            break;
+    }
+}
+
+static inline uint32_t mix32(uint32_t x) {
+    x^=x>>16;
+    x*=0x85ebca6b;
+    x^=x>>13;
+    x*=0xc2b2ae35;
+    x^=x>>16;
+    return x;
+}
+
+static inline int getTurnType(Vec3 pos) {
+    return ((mix32(pos.x)^mix32(pos.z))+pos.y)&0b11;
+}
+
 Model buildWorldMesh(World *world) {
     loadAtlasTexture();
 
@@ -91,6 +134,8 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx + 1.0f, fy + 1.0f, fz + 1.0f };
                     Vector3 v3 = { fx + 1.0f, fy + 1.0f, fz };
                     Vector3 v4 = { fx, fy + 1.0f, fz };
+                    if (def.textures.randturn&0b100000)
+                        turnTexture(&v1, &v2, &v3, &v4, getTurnType(pos));
                     addFace(&mesh, &vCount, v1, v2, v3, v4, TEX_UV(def.textures.tex_top));
                 }
 
@@ -99,6 +144,8 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx + 1.0f, fy, fz };
                     Vector3 v3 = { fx + 1.0f, fy, fz + 1.0f };
                     Vector3 v4 = { fx, fy, fz + 1.0f };
+                    if (def.textures.randturn&0b010000)
+                        turnTexture(&v1, &v2, &v3, &v4, getTurnType(pos));
                     addFace(&mesh, &vCount, v1, v2, v3, v4, TEX_UV(def.textures.tex_bottom));
                 }
 
@@ -107,6 +154,8 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx, fy + 1.0f, fz + 1.0f };
                     Vector3 v3 = { fx, fy + 1.0f, fz };
                     Vector3 v4 = { fx, fy, fz };
+                    if (def.textures.randturn&0b001000)
+                        turnTexture(&v1, &v2, &v3, &v4, getTurnType(pos));
                     addFace(&mesh, &vCount, v3, v2, v1, v4, TEX_UV(def.textures.tex_left));
                 }
 
@@ -115,6 +164,8 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx + 1.0f, fy + 1.0f, fz };
                     Vector3 v3 = { fx + 1.0f, fy + 1.0f, fz + 1.0f };
                     Vector3 v4 = { fx + 1.0f, fy, fz + 1.0f };
+                    if (def.textures.randturn&0b000100)
+                        turnTexture(&v1, &v2, &v3, &v4, getTurnType(pos));
                     addFace(&mesh, &vCount, v3, v2, v1, v4, TEX_UV(def.textures.tex_right));
                 }
 
@@ -123,6 +174,8 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx + 1.0f, fy + 1.0f, fz };
                     Vector3 v3 = { fx, fy + 1.0f, fz };
                     Vector3 v4 = { fx, fy, fz };
+                    if (def.textures.randturn&0b000010)
+                        turnTexture(&v1, &v2, &v3, &v4, getTurnType(pos));
                     addFace(&mesh, &vCount, v3, v2, v1, v4, TEX_UV(def.textures.tex_back));
                 }
 
@@ -131,6 +184,8 @@ Model buildWorldMesh(World *world) {
                     Vector3 v2 = { fx + 1.0f, fy, fz + 1.0f };
                     Vector3 v3 = { fx + 1.0f, fy + 1.0f, fz + 1.0f };
                     Vector3 v4 = { fx, fy + 1.0f, fz + 1.0f };
+                    if (def.textures.randturn&0b000001)
+                        turnTexture(&v1, &v2, &v3, &v4, getTurnType(pos));
                     addFace(&mesh, &vCount, v3, v4, v1, v2, TEX_UV(def.textures.tex_front));
                 }
             }
@@ -148,6 +203,87 @@ Model buildWorldMesh(World *world) {
     }
 
     return model;
+}
+
+static void fillVertsFromModelRect(const ModelRect* rect, Vector3 verts[6][4]) {
+    double x0 = rect->pos.x;
+    double y0 = rect->pos.y;
+    double z0 = rect->pos.z;
+    double x1 = rect->pos.x + rect->size.x;
+    double y1 = rect->pos.y + rect->size.y;
+    double z1 = rect->pos.z + rect->size.z;
+
+    #define SET_VERT(face, idx, vx, vy, vz) \
+        do { \
+            verts[face][idx].x = (vx); \
+            verts[face][idx].y = (vy); \
+            verts[face][idx].z = (vz); \
+        } while (0)
+
+    SET_VERT(0, 0, x0, y0, z0);
+    SET_VERT(0, 1, x1, y0, z0);
+    SET_VERT(0, 2, x1, y1, z0);
+    SET_VERT(0, 3, x0, y1, z0);
+
+    SET_VERT(1, 0, x1, y0, z1);
+    SET_VERT(1, 1, x0, y0, z1);
+    SET_VERT(1, 2, x0, y1, z1);
+    SET_VERT(1, 3, x1, y1, z1);
+
+    SET_VERT(2, 0, x0, y0, z1);
+    SET_VERT(2, 1, x0, y0, z0);
+    SET_VERT(2, 2, x0, y1, z0);
+    SET_VERT(2, 3, x0, y1, z1);
+
+    SET_VERT(3, 0, x1, y0, z0);
+    SET_VERT(3, 1, x1, y0, z1);
+    SET_VERT(3, 2, x1, y1, z1);
+    SET_VERT(3, 3, x1, y1, z0);
+
+    SET_VERT(4, 0, x0, y0, z1);
+    SET_VERT(4, 1, x1, y0, z1);
+    SET_VERT(4, 2, x1, y0, z0);
+    SET_VERT(4, 3, x0, y0, z0);
+
+    SET_VERT(5, 0, x0, y1, z0);
+    SET_VERT(5, 1, x1, y1, z0);
+    SET_VERT(5, 2, x1, y1, z1);
+    SET_VERT(5, 3, x0, y1, z1);
+
+    #undef SET_VERT
+}
+
+void renderEntityModel(Vec3d offset, const EntityModel *model) {
+    Mesh mesh={0};
+    Model draw_model;
+    const int rect_amount=model->rects.size();
+    const int max_faces=rect_amount*6;
+    mesh.triangleCount=max_faces*2;
+    mesh.vertexCount=max_faces*6;
+
+    mesh.vertices = (float *)malloc(mesh.vertexCount * 3 * sizeof(float));
+    mesh.texcoords = (float *)malloc(mesh.vertexCount * 2 * sizeof(float));
+
+    int vert_count=0;
+    for (int i=0;i<rect_amount;i++) {
+        ModelRect cur_rect=model->rects[i];
+        Vector3 verts[6][4];
+        fillVertsFromModelRect(&cur_rect, verts);
+
+        addFace(&mesh, &vert_count, verts[0][0], verts[0][1], verts[0][2], verts[0][3], TEX_UV(0));
+        addFace(&mesh, &vert_count, verts[1][0], verts[1][1], verts[1][2], verts[1][3], TEX_UV(0));
+        addFace(&mesh, &vert_count, verts[2][0], verts[2][1], verts[2][2], verts[2][3], TEX_UV(0));
+        addFace(&mesh, &vert_count, verts[3][0], verts[3][1], verts[3][2], verts[3][3], TEX_UV(0));
+        addFace(&mesh, &vert_count, verts[4][0], verts[4][1], verts[4][2], verts[4][3], TEX_UV(0));
+        addFace(&mesh, &vert_count, verts[5][0], verts[5][1], verts[5][2], verts[5][3], TEX_UV(0));
+    }
+
+    mesh.vertexCount = vert_count;
+    mesh.triangleCount = mesh.vertexCount / 3;
+
+    UploadMesh(&mesh, false);
+    draw_model=LoadModelFromMesh(mesh);
+    DrawModel(draw_model, {(float)offset.x, (float)offset.y, (float)offset.z}, 1.0f, WHITE);
 }
 
 void updateWorldMesh(Model *model, World *world) {

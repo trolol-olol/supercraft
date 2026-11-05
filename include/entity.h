@@ -10,16 +10,16 @@ class Entity {
 public:
     Vec3d pos;
     Vec3d vel;
+    EntityDef edef;
     double width, height, depth;
     double pitch, yaw;
     double health;
     bool alive;
 
-    Entity();
+    Entity(std::string& id);
     virtual ~Entity() = default;
 
-    virtual void update(double deltaTime) = 0;
-    virtual void render() = 0;
+    virtual void update(double dt);
 
     bool checkBlockCollision(World *world);
     bool checkBlockCollision(World *world, Vec3d pos);

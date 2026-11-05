@@ -9,6 +9,7 @@ OBJ_DIR = obj
 TARGET = supercraft
 
 SOURCES = $(wildcard $(SRC_DIR)/*.cpp $(SRC_DIR)/core/*.cpp)
+INCLUDES = $(wildcard $(INCLUDE_DIR)/*.h $(INCLUDE_DIR)/core/*.h)
 OBJECTS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES))
 
 all: $(TARGET)

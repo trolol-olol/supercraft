@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const char *SUPERCRAFT_VER = "0.1.2-PreAlpha";
+const char *SUPERCRAFT_VER = "0.1.3-PreAlpha";
 
 int main() {
     Registries::init();
@@ -40,7 +40,8 @@ int main() {
     SetTargetFPS(60);
     DisableCursor();
 
-
+    std::string ent_type="test";
+    //world.addEntity({0,10,0},ent_type);
 
     while (!WindowShouldClose()) {
         float deltaTime = GetFrameTime();
@@ -67,6 +68,11 @@ int main() {
         BeginMode3D(camera);
 
         DrawModel(worldModel, (Vector3){ 0, 0, 0 }, 1.0f, WHITE);
+
+        for (auto it=world.entitiesIter();it!=world.entitiesIterEnd();++it) {
+            Entity ent=*it;
+            renderEntityModel(ent.pos,&Registries::MODELS.getObject(ent.edef.model));
+        }
 
         if (hit) {
             Vector3 cubePos = { hitBlock.x + 0.5f, hitBlock.y + 0.5f, hitBlock.z + 0.5f };

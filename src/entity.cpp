@@ -6,7 +6,7 @@
 
 using namespace std;
 
-Entity::Entity() {
+Entity::Entity(std::string& id) {
     pos = {0.0, 0.0, 0.0};
     vel = {0.0, 0.0, 0.0};
     width = 0.6;
@@ -16,7 +16,10 @@ Entity::Entity() {
     yaw = 0.0;
     health = 20.0;
     alive = true;
+    edef = Registries::ENTITIES.getObject(id);
 }
+
+void Entity::update(double dt) { }
 
 bool Entity::checkBlockCollision(World *world, Vec3d pos) {
     double halfW = width / 2.0;

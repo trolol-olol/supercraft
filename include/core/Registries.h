@@ -7,6 +7,7 @@
 namespace Registries {
     extern Registry<BlockDef> BLOCKS;
     extern Registry<EntityDef> ENTITIES;
+    extern Registry<EntityModel> MODELS;
     void init();
 }
 

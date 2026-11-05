@@ -28,12 +28,13 @@ typedef enum {
 } side_t;
 
 typedef struct {
+    uint8_t randturn;
     uint8_t tex_top;
+    uint8_t tex_bottom;
     uint8_t tex_left;
     uint8_t tex_right;
-    uint8_t tex_front;
     uint8_t tex_back;
-    uint8_t tex_bottom;
+    uint8_t tex_front;
 } Textures;
 
 typedef struct {
