@@ -4,10 +4,16 @@
 #include "raylib.h"
 #include "types.h"
 #include "world.h"
+#include <unordered_map>
 
-Model buildWorldMesh(World *world);
-void updateWorldMesh(Model *model, World *world);
-void destroyWorldModel(Model *model);
+struct ChunkRenderData {
+    Model model{};
+    bool hasModel = false;
+};
+
+void rebuildChunkMesh(ChunkRenderData& out, World* world, ChunkPos pos);
+void updateDirtyChunks(std::unordered_map<ChunkPos, ChunkRenderData>& models, World* world);
+void destroyAllChunkModels(std::unordered_map<ChunkPos, ChunkRenderData>& models);
 void renderEntity(const Entity* entity);
 
 #endif

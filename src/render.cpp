@@ -103,10 +103,17 @@ static inline int getTurnType(Vec3 pos) {
     return ((mix32(pos.x)^mix32(pos.z))+pos.y)&0b11;
 }
 
-Model buildWorldMesh(World *world) {
+void rebuildChunkMesh(ChunkRenderData& out, World* world, ChunkPos cp) {
     loadAtlasTexture();
+    if (out.hasModel) {
+        UnloadModel(out.model);
+        out.hasModel = false;
+    }
 
-    const int maxBlocks = world->WORLD_SIZE_X * world->WORLD_SIZE_Y * world->WORLD_SIZE_Z;
+    Chunk *chunk = world->getChunk(cp);
+    if (!chunk) return;
+
+    const int maxBlocks =16 * world->WORLD_SIZE_Y * 16;
     const int maxFaces = maxBlocks * 6;
 
     Mesh mesh = { 0 };
@@ -118,16 +125,18 @@ Model buildWorldMesh(World *world) {
 
     int vCount = 0;
 
-    for (int x = -world->HALF_X; x < world->HALF_X; x++) {
-        for (int y = 0; y < world->WORLD_SIZE_Y; y++) {
-            for (int z = -world->HALF_Z; z < world->HALF_Z; z++) {
-                Vec3 pos = { x, y, z };
-                Block block = world->getBlock(pos);
-
+    for (int lx = 0; lx < 16; lx++) {
+        for (int ly = 0; ly < world->WORLD_SIZE_Y; ly++) {
+            for (int lz = 0; lz < 16; lz++) {
+                Block block = chunk->getBlock({lx, ly, lz});
                 BlockDef def = Registries::BLOCKS.getObject(block.type);
                 if (def.isAir) continue;
 
-                float fx = (float)x, fy = (float)y, fz = (float)z;
+                int wx = cp.x * 16 + lx;
+                int wz = cp.z * 16 + lz;
+                Vec3 pos = { wx, ly, wz };
+
+                float fx = (float)wx, fy = (float)ly, fz = (float)wz;
 
                 if (world->isFaceVisible(pos, UP)) {
                     Vector3 v1 = { fx, fy + 1.0f, fz + 1.0f };
@@ -196,13 +205,27 @@ Model buildWorldMesh(World *world) {
     mesh.triangleCount = vCount / 3;
 
     UploadMesh(&mesh, 0);
-    Model model = LoadModelFromMesh(mesh);
+    out.model = LoadModelFromMesh(mesh);
 
     if (atlasTexture.id != 0) {
-        model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = atlasTexture;
+        out.model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = atlasTexture;
     }
 
-    return model;
+    out.hasModel = true;
+}
+
+void updateDirtyChunks(std::unordered_map<ChunkPos, ChunkRenderData>& models, World* world) {
+    for (auto& [pos, chunkPtr] : world->getChunks()) {
+        if (!chunkPtr->dirty) continue;
+        rebuildChunkMesh(models[pos], world, pos);
+        chunkPtr->dirty = false;
+    }
+}
+
+void destroyAllChunkModels(std::unordered_map<ChunkPos, ChunkRenderData>& models) {
+    for (auto& [pos, rd] : models)
+        if (rd.hasModel) UnloadModel(rd.model);
+    models.clear();
 }
 
 static void fillVertsFromModelRect(const ModelRect* rect, Vector3 verts[6][4]) {
@@ -290,14 +313,4 @@ void renderEntity(const Entity *entity) {
 
     DrawModelEx(draw_model, {(float)entity->pos.x,(float)entity->pos.y,(float)entity->pos.z}, {0, 1, 0}, (float)entity->yaw, {1, 1, 1}, WHITE);
     UnloadModel(draw_model);
-}
-
-void updateWorldMesh(Model *model, World *world) {
-    //veri smart
-    UnloadModel(*model);
-    *model = buildWorldMesh(world);
-}
-
-void destroyWorldModel(Model *model) {
-    UnloadModel(*model);
 }

@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const char *SUPERCRAFT_VER = "0.1.4-PreAlpha";
+const char *SUPERCRAFT_VER = "0.2.0-PreAlpha";
 
 int main() {
     Registries::init();
@@ -26,7 +26,7 @@ int main() {
 
     World world;
 
-    Model worldModel = buildWorldMesh(&world);
+    std::unordered_map<ChunkPos, ChunkRenderData> chunkModels;
 
     Player player;
     initPlayer(&player);
@@ -48,6 +48,7 @@ int main() {
 
         updatePlayer(&player, deltaTime);
         updateCamera(&camera, &player);
+        world.updateLoadedChunks(player.x, player.z, 4);
         for (auto it=world.entitiesIter();it!=world.entitiesIterEnd();++it) {
             Entity *ent=*it;
             ent->update(deltaTime);
@@ -71,7 +72,11 @@ int main() {
 
         BeginMode3D(camera);
 
-        DrawModel(worldModel, (Vector3){ 0, 0, 0 }, 1.0f, WHITE);
+        updateDirtyChunks(chunkModels, &world);
+
+        for (auto& [pos, rd] : chunkModels) {
+            if (rd.hasModel) DrawModel(rd.model, (Vector3){0, 0, 0}, 1.0f, WHITE);
+        }
 
         for (auto it=world.entitiesIter();it!=world.entitiesIterEnd();++it) {
             Entity *ent=*it;
@@ -84,7 +89,6 @@ int main() {
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 Block empty_block = {0, 0};
                 world.setBlock(hitBlock, empty_block);
-                updateWorldMesh(&worldModel, &world);
             }
 
             if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
@@ -100,7 +104,6 @@ int main() {
                 if (world.isAir(placePos)) {
                     Block newBlock = {player.block, 0};
                     world.setBlock(placePos, newBlock);
-                    updateWorldMesh(&worldModel, &world);
                 }
             }
             if (IsMouseButtonPressed(MOUSE_BUTTON_MIDDLE)) {
@@ -134,7 +137,7 @@ int main() {
         EndDrawing();
     }
 
-    destroyWorldModel(&worldModel);
+    destroyAllChunkModels(chunkModels);
     CloseWindow();
 
     return 0;
