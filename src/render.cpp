@@ -220,6 +220,7 @@ void updateDirtyChunks(std::unordered_map<ChunkPos, ChunkRenderData>& models, Wo
         rebuildChunkMesh(models[pos], world, pos);
         chunkPtr->dirty = false;
     }
+
 }
 
 void destroyAllChunkModels(std::unordered_map<ChunkPos, ChunkRenderData>& models) {

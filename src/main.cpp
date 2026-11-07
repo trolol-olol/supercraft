@@ -49,6 +49,15 @@ int main() {
         updatePlayer(&player, deltaTime);
         updateCamera(&camera, &player);
         world.updateLoadedChunks(player.x, player.z, 4);
+        for (auto it = chunkModels.begin(); it != chunkModels.end(); ) {
+            if (world.getChunk(it->first) == nullptr) {
+                if (it->second.hasModel) UnloadModel(it->second.model);
+                    it = chunkModels.erase(it);
+            } else {
+                it++;
+            }
+        }
+
         for (auto it=world.entitiesIter();it!=world.entitiesIterEnd();++it) {
             Entity *ent=*it;
             ent->update(deltaTime);
