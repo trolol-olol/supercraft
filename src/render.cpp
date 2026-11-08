@@ -113,7 +113,7 @@ void rebuildChunkMesh(ChunkRenderData& out, World* world, ChunkPos cp) {
     Chunk *chunk = world->getChunk(cp);
     if (!chunk) return;
 
-    const int maxBlocks =16 * world->WORLD_SIZE_Y * 16;
+    const int maxBlocks =16 * WORLD_SIZE_Y * 16;
     const int maxFaces = maxBlocks * 6;
 
     Mesh mesh = { 0 };
@@ -126,7 +126,7 @@ void rebuildChunkMesh(ChunkRenderData& out, World* world, ChunkPos cp) {
     int vCount = 0;
 
     for (int lx = 0; lx < 16; lx++) {
-        for (int ly = 0; ly < world->WORLD_SIZE_Y; ly++) {
+        for (int ly = 0; ly < WORLD_SIZE_Y; ly++) {
             for (int lz = 0; lz < 16; lz++) {
                 Block block = chunk->getBlock({lx, ly, lz});
                 BlockDef def = Registries::BLOCKS.getObject(block.type);

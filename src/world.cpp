@@ -6,8 +6,8 @@
 
 using namespace std;
 
-World::World() {
-    updateLoadedChunks(0, 0, 4);
+World::World() : ldr(this) {
+    updateLoadedChunks(0, 0);
 }
 
 World::~World() {
@@ -81,14 +81,14 @@ Chunk& World::getOrLoadChunk(ChunkPos pos) {
     return ref;
 }
 
-void World::updateLoadedChunks(double px, double pz, int dist) {
+void World::updateLoadedChunks(double px, double pz) {
     int pcx = floorDiv(std::floor(px), 16);
     int pcz = floorDiv(std::floor(pz), 16);
 
     std::unordered_set<ChunkPos> needed;
-    for (int dx = -dist; dx <= dist; ++dx) {
-        for (int dz = -dist; dz <= dist; ++dz) {
-            if (dx * dx + dz * dz <= dist * dist) {
+    for (int dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; ++dx) {
+        for (int dz = -RENDER_DISTANCE; dz <= RENDER_DISTANCE; ++dz) {
+            if (dx * dx + dz * dz <= RENDER_DISTANCE * RENDER_DISTANCE) {
                 needed.insert({pcx + dx, pcz + dz});
             }
         }
@@ -99,7 +99,7 @@ void World::updateLoadedChunks(double px, double pz, int dist) {
         if (!needed.count(it->first)) it = chunks.erase(it);
         else ++it;
     }
-    for (auto& p : needed) getOrLoadChunk(p);
+    for (auto& p : needed) ldr.requestLoad(p);
 }
 
 void World::generateChunk(Chunk& c) {

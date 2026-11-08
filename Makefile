@@ -1,6 +1,6 @@
 #vibecoding makefiles day 1
 CXX = g++
-CXXFLAGS = -Wall -O0 -Iinclude -g
+CXXFLAGS = -Wall -O2 -s -std=c++20 -Iinclude
 LDFLAGS = -lraylib -lGL -lm -lpthread -ldl -lrt -lX11
 
 SRC_DIR = src

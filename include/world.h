@@ -5,14 +5,16 @@
 #include "blocks.h"
 #include "entity.h"
 #include "core/chunk.h"
+#include "core/chunkloader.h"
 #include <unordered_map>
 #include <vector>
 #include <cstdint>
 
+#define RENDER_DISTANCE 16
+#define WORLD_SIZE_Y 8
+
 class World {
 public:
-    static constexpr int WORLD_SIZE_Y = 8;
-
     World();
     ~World();
 
@@ -25,7 +27,7 @@ public:
 
     Chunk* getChunk(ChunkPos pos);
     Chunk& getOrLoadChunk(ChunkPos pos);
-    void updateLoadedChunks(double px, double pz, int dist);
+    void updateLoadedChunks(double px, double pz);
     auto& getChunks() { return chunks; }
 
     Entity* addEntity(Vec3d pos, std::string& id);
@@ -36,6 +38,7 @@ public:
     bool isFaceVisible(Vec3 pos, side_t side);
     bool isValidPos(Vec3 pos);
 private:
+    ChunkLoader ldr;
     void generateChunk(Chunk& c);
     std::unordered_map<ChunkPos, std::unique_ptr<Chunk>> chunks;
     std::vector<Entity*> entities;

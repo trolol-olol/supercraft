@@ -12,7 +12,7 @@
 
 using namespace std;
 
-const char *SUPERCRAFT_VER = "0.2.0-PreAlpha";
+const char *SUPERCRAFT_VER = "0.2.1-PreAlpha";
 
 int main() {
     Registries::init();
@@ -48,7 +48,7 @@ int main() {
 
         updatePlayer(&player, deltaTime);
         updateCamera(&camera, &player);
-        world.updateLoadedChunks(player.x, player.z, 4);
+        world.updateLoadedChunks(player.x, player.z);
         for (auto it = chunkModels.begin(); it != chunkModels.end(); ) {
             if (world.getChunk(it->first) == nullptr) {
                 if (it->second.hasModel) UnloadModel(it->second.model);

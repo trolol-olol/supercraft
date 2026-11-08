@@ -5,7 +5,7 @@
 #include <cstdlib>
 
 Chunk::Chunk(ChunkPos chunk_pos) {
-    blocks = (Block*)calloc(16 * World::WORLD_SIZE_Y * 16, sizeof(Block));
+    blocks = (Block*)calloc(16 * WORLD_SIZE_Y * 16, sizeof(Block));
     pos=chunk_pos;
 }
 
@@ -35,10 +35,10 @@ bool Chunk::isAir(Vec3 pos) {
 
 bool Chunk::isValidPos(Vec3 pos) {
     return pos.x >= 0 && pos.x < 16 &&
-           pos.y >= 0 && pos.y < World::WORLD_SIZE_Y &&
+           pos.y >= 0 && pos.y < WORLD_SIZE_Y &&
            pos.z >= 0 && pos.z < 16;
 }
 
 int Chunk::getIndex(Vec3 pos) {
-    return (pos.x * World::WORLD_SIZE_Y + pos.y) * 16 + pos.z;
+    return (pos.x * WORLD_SIZE_Y + pos.y) * 16 + pos.z;
 }
